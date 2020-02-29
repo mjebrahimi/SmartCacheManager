@@ -92,7 +92,7 @@ public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 ### 5. Use it
 
-Inject your own implementation  and use it using `SearchFromCacheAsync` method.
+Inject your own implementation  and use it using `SearchFromCacheAsync()` method.
 
 ```csharp
 var supplier = FlightSupplierts.Amadeus; //supplier can be any type, string, enum or ...
@@ -122,6 +122,6 @@ Create an [issue]() if you find a BUG or have a Suggestion or Question. If you w
 
 If you find this repository useful, please give it a star. Thanks!
 
-## License
+## License/Copyright 
 
-AutoMapper is Copyright © 2020 [Mohammd Javad Ebrahimi](https://github.com/mjebrahimi) under the MIT license.
+SmartCacheManager is Copyright © 2020 [Mohammd Javad Ebrahimi](https://github.com/mjebrahimi).
