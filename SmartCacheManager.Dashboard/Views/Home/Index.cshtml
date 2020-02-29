@@ -1,0 +1,33 @@
+﻿@model SmartCacheManager.Dashboard.Controllers.IndexViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">
+        @Model.FlightSearchResult?.Now.ToString("yyyy/MM/dd HH:mm:ss")
+    </h1>
+    <a asp-action="FlushCacheDb">Flush Cache Data (Admin Mode Required)</a>
+</div>
+
+<div class="text-center">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>Current RPM</td>
+                <td>Calculated Cache Minutes</td>
+                <td>Existed Cache Minutes</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CacheDetails)
+            {
+                <tr>
+                    <td>@item.CurrentRPM</td>
+                    <td>@item.CalculatedCacheMinutes</td>
+                    <td>(@Convert.ToInt32(item.ExistedCacheMinutes.TotalMinutes)) @item.ExistedCacheMinutes.ToString("hh\\:mm\\:ss") </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

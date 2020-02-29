@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Caching\EasyCaching\**" />
+    <EmbeddedResource Remove="Logging\SerilogLogger\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EasyCaching.Bus.Redis" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.Core" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.HybridCache" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.InMemory" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.Redis" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.Serialization.Json" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="0.6.1" />
+    <PackageReference Include="EasyCaching.Serialization.Protobuf" Version="0.6.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
+    <PackageReference Include="NeuroSpeech.EFCoreLiveMigration" Version="1.2.104" />
+    <PackageReference Include="Serilog" Version="2.9.1-dev-01154" />
+    <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.ExceptionStackTraceHash" Version="1.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Memory" Version="1.0.4" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00837" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.2-dev-00020" />
+    <PackageReference Include="Serilog.Sinks.EventLog" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.3" />
+    <PackageReference Include="Fody" Version="6.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MethodTimer.Fody" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
