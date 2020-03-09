@@ -103,12 +103,17 @@ namespace SmartCacheManager
                     }
                     else
                     {
-                        result = await CacheManager.GetAsync(cacheKey, async () =>
+                        dataRetriever = async () =>
                         {
                             var data = await dataRetriever().ConfigureAwait(false);
                             await SearchHistoryService.AddOutgoingAsync(outgoingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
                             return data;
-                        }, cacheMinutes, cancellationToken).ConfigureAwait(false);
+                        };
+
+                        if (cacheMinutes == 0)
+                            result = await dataRetriever().ConfigureAwait(false);
+                        else
+                            result = await CacheManager.GetAsync(cacheKey, dataRetriever, cacheMinutes, cancellationToken).ConfigureAwait(false);
                     }
                     return result;
                 }
@@ -212,7 +217,7 @@ namespace SmartCacheManager
             {
                 var expiration = await GetExpirationAsync(cacheKey, cancellationToken).ConfigureAwait(false);
 
-                if (cacheMinutes < Convert.ToDecimal(expiration.TotalMinutes))
+                if (cacheMinutes > 0 && cacheMinutes < Convert.ToDecimal(expiration.TotalMinutes))
                 {
                     //Change cache time
                     await CacheManager.SetExpirationAsync(cacheKey, cacheMinutes, cancellationToken).ConfigureAwait(false);
@@ -301,7 +306,7 @@ namespace SmartCacheManager
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Current Rpm</returns>
-        protected virtual  Task<decimal> GetRpmAsync<TSupplierType>(string incomingPattern, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        protected virtual Task<decimal> GetRpmAsync<TSupplierType>(string incomingPattern, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {

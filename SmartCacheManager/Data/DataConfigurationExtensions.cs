@@ -106,7 +106,7 @@ namespace SmartCacheManager.Data
                         cacheSettingStore.Add(new CacheSetting
                         {
                             MinSearchDiffHours = 1 * 24, //24 (1 day)
-                            MaxSearchDiffHours = 30 * 24, //480 (30 day)
+                            MaxSearchDiffHours = 30 * 24, //720 (30 day)
                             MinCacheMinutes = 5,
                             MaxCacheMinutes = 24 * 60, //1440 (1 day)
                             OverSearchDiffHours = 90 * 24, //2160 (90 day)

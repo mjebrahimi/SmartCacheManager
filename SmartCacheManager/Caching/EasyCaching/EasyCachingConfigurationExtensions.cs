@@ -44,20 +44,14 @@ namespace SmartCacheManager.Caching.EasyCaching
 
             var inMemory = "DefaultInMemory";
             var redis = "DefaultRedis";
-            var msgPack = "msgpack";
-            var hybrid = "DefaultHybrid";
-            var topicName = "test-topic";
-
-            //Add services required for using options.
-            services.AddOptions();
 
             if (configure == null)
                 configure = _ => { };
             services.Configure(configure);
 
-            //using IOptionsMonitor<> instead of IOptions<> because IOptionsMonitor is Singleton while IOptions is scoped
-            var optionsMonitor = services.BuildServiceProvider().GetRequiredService<IOptionsMonitor<EasyCachingOptions>>();
-            var options = optionsMonitor.CurrentValue;
+            //using IOptions<> instead of IOptionsSnapshot<> because IOptions is Singleton while IOptionsSnapshot is scoped
+            var optionsMonitor = services.BuildServiceProvider().GetRequiredService<IOptions<EasyCachingOptions>>();
+            var options = optionsMonitor.Value;
 
             if (options.ProviderType == CachingProviderType.Disabled)
                 return services;
@@ -89,6 +83,8 @@ namespace SmartCacheManager.Caching.EasyCaching
 
                 if (options.ProviderType == CachingProviderType.Redis || options.ProviderType == CachingProviderType.Hybrid)
                 {
+                    var serializerName = options.BinarySerializerType.ToString();
+
                     //use redis cache that named redis
                     var redisCache = easyCachingOptions.UseRedis(config =>
                     {
@@ -96,10 +92,11 @@ namespace SmartCacheManager.Caching.EasyCaching
                         config.EnableLogging = options.EnableLogging;
                         //redis database endpoint (host:port)
                         config.DBConfig.Endpoints.Add(new ServerEndPoint(options.RedisHost, options.RedisPort));
-                        config.SerializerName = msgPack;
+                        config.SerializerName = serializerName;
                         //Access for redis FLUSHDB command
                         config.DBConfig.AllowAdmin = options.RedisAllowAdmin;
                     }, redis);
+
                     //set binary serializer (MessagePack or Protobuf or Json)
                     switch (options.BinarySerializerType)
                     {
@@ -114,13 +111,13 @@ namespace SmartCacheManager.Caching.EasyCaching
                             //{
                             //    opt.EnableCustomResolver = true;
                             //}, msgPack);
-                            redisCache.WithMessagePack(msgPack);
+                            redisCache.WithMessagePack(serializerName);
                             break;
                         case BinarySerializerType.Protobuf:
-                            redisCache.WithProtobuf();
+                            redisCache.WithProtobuf(serializerName);
                             break;
                         case BinarySerializerType.Json:
-                            redisCache.WithJson();
+                            redisCache.WithJson(serializerName);
                             break;
                     }
                 }

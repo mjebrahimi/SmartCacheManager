@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace SmartCacheManager.Utilities
 {
@@ -12,10 +13,70 @@ namespace SmartCacheManager.Utilities
         /// </summary>
         /// <param name="connectionString">Connection string to connect</param>
         /// <param name="databaseName">Database name to check or create</param>
-        public static void CreateDatabaseIfNotExists(string connectionString, string databaseName = null)
+        /// <param name="folderPath">Folder path to create database</param>
+        public static void CreateDatabaseIfNotExists(string connectionString, string databaseName = null, string folderPath = null)
         {
             if (!DatabaseExists(connectionString, databaseName))
-                CreateDatabase(connectionString, databaseName);
+                CreateDatabase(connectionString, databaseName, folderPath);
+        }
+
+        /// <summary>
+        /// Drop database and recreate
+        /// Example 1 : databaseName: null(optional) and connectionString: "Data Source=.;Initial Catalog=MyDatabaseName;Integrated Security=true"
+        /// Example 1 : databaseName: "MyDatabaseName" and connectionString: "Data Source=.;Initial Catalog=master;Integrated Security=true"
+        /// </summary>
+        /// <param name="connectionString">Connection string to connect</param>
+        /// <param name="databaseName">Database name to check or create</param>
+        /// <param name="folderPath">Folder path to create database</param>
+        /// <param name="force">Force to close existing connections</param>
+        public static void DropDatabaseAndRecreate(string connectionString, string databaseName = null, string folderPath = null, bool force = false)
+        {
+            if (DatabaseExists(connectionString, databaseName))
+                DropDatabase(connectionString, databaseName);
+            CreateDatabase(connectionString, databaseName, folderPath);
+        }
+
+        /// <summary>
+        /// Drop database
+        /// Example 1 : databaseName: null(optional) and connectionString: "Data Source=.;Initial Catalog=MyDatabaseName;Integrated Security=true"
+        /// Example 1 : databaseName: "MyDatabaseName" and connectionString: "Data Source=.;Initial Catalog=master;Integrated Security=true"
+        /// </summary>
+        /// <param name="connectionString">Connection string to connect</param>
+        /// <param name="databaseName">Database name to check</param>
+        /// <param name="force">Force to close existing connections</param>
+        public static void DropDatabase(string connectionString, string databaseName = null, bool force = false)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+
+            var isMaster = builder.InitialCatalog.Equals("master", StringComparison.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(databaseName))
+            {
+                if (isMaster)
+                    throw new InvalidOperationException($"If {nameof(databaseName)} hasn't value then current InitialCatalog shouldn't be 'master'");
+
+                databaseName = builder.InitialCatalog;
+                builder.InitialCatalog = "master";
+            }
+            else
+            {
+                if (!isMaster)
+                    throw new InvalidOperationException($"If {nameof(databaseName)} has value ({databaseName}) then current InitialCatalog should be 'master'");
+            }
+
+            var command = $"DROP DATABASE {databaseName};";
+            if (force)
+                command = $"ALTER DATABASE {databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE; " + command;
+
+            using (var sqlConnection = new SqlConnection(builder.ConnectionString))
+            {
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
+                using (var sqlCommand = new SqlCommand(command, sqlConnection))
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
+                {
+                    sqlConnection.Open();
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
         }
 
         /// <summary>
@@ -64,7 +125,8 @@ namespace SmartCacheManager.Utilities
         /// </summary>
         /// <param name="connectionString">Connection string to connect</param>
         /// <param name="databaseName">Database name to create</param>
-        public static void CreateDatabase(string connectionString, string databaseName = null)
+        /// <param name="folderPath">Folder path to create database</param>
+        public static void CreateDatabase(string connectionString, string databaseName = null, string folderPath = null)
         {
             var builder = new SqlConnectionStringBuilder(connectionString);
 
@@ -84,6 +146,8 @@ namespace SmartCacheManager.Utilities
             }
 
             var command = $"CREATE DATABASE {databaseName}";
+            if (string.IsNullOrWhiteSpace(folderPath) == false && Directory.Exists(folderPath))
+                command += $" ON PRIMARY ( NAME = {databaseName}, FILENAME = '{Path.Combine(folderPath, databaseName + ".mdf")}' )";
 
             #region More info
             //https://stackoverflow.com/questions/39499810/how-to-create-database-if-not-exist-in-c-sharp-winforms

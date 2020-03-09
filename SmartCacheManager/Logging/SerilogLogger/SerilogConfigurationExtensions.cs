@@ -26,7 +26,6 @@ namespace SmartCacheManager.Logging.Serilog
         {
             services.NotNull(nameof(services));
 
-            //TODO: check
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 Log.CloseAndFlush();
@@ -102,6 +101,8 @@ namespace SmartCacheManager.Logging.Serilog
 
                 if (options.EnableSqlLog)
                 {
+                    options.SqlConnectionString.NotNullOrWhiteSpace(nameof(options.SqlConnectionString));
+
                     SqlHelper.CreateDatabaseIfNotExists(options.SqlConnectionString);
 
                     config.LogErrorToSqlServer(options.SqlConnectionString, LogEventLevel.Error);
