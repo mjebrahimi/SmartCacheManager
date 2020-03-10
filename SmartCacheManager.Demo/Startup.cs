@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 
-namespace SmartCacheManager.Dashboard
+namespace SmartCacheManager.Demo
 {
     public class Startup
     {

@@ -2,16 +2,11 @@
 using SmartCacheManager.Data;
 using SmartCacheManager.Services;
 using SmartCacheManager.Utilities;
-using EasyCaching.Core.Serialization;
-using MessagePack.Resolvers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using NeuroSpeech.EFCoreLiveMigration;
 using System;
-using System.Linq;
 using SmartCacheManager.Logging.Serilog;
 
 namespace SmartCacheManager

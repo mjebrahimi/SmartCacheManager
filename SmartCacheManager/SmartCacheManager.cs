@@ -87,13 +87,13 @@ namespace SmartCacheManager
                     var incomingPattern = GetIncomingRequestPattern(searchModel, supplierType);
                     var outgoingPattern = GetOutgoingRequestPattern(searchModel, supplierType);
 
-                    await SearchHistoryService.AddIncommingAsync(incomingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
+                    await SearchHistoryService.AddIncommingAsync(incomingPattern, supplierType, cancellationToken).ConfigureAwait(false);
 
                     var cacheMinutes = await CalculateCacheMinutesAsync(incomingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
 
                     await ChangeCacheMinutesAsync(cacheKey, cacheMinutes, cancellationToken).ConfigureAwait(false);
 
-                    var limitationReached = await SearchHistoryService.IsLimitationReachedAsync(outgoingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
+                    var limitationReached = await SearchHistoryService.IsLimitationReachedAsync(outgoingPattern, supplierType, cancellationToken).ConfigureAwait(false);
                     Logger.SetProperty(LogConstants.IsLimitationReached, limitationReached);
 
                     TResult result;
@@ -106,7 +106,7 @@ namespace SmartCacheManager
                         async Task<TResult> RetrieverAndLogHistroy()
                         {
                             var data = await dataRetriever().ConfigureAwait(false);
-                            await SearchHistoryService.AddOutgoingAsync(outgoingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
+                            await SearchHistoryService.AddOutgoingAsync(outgoingPattern, supplierType, cancellationToken).ConfigureAwait(false);
                             return data;
                         }
 
@@ -168,7 +168,7 @@ namespace SmartCacheManager
 
                 var incomingPattern = GetIncomingRequestPattern(searchModel, supplierType);
 
-                return GetRpmAsync(incomingPattern, searchModel, supplierType, cancellationToken);
+                return GetRpmAsync(incomingPattern, supplierType, cancellationToken);
             }
             catch (Exception ex)
             when (Logger.LogErrorIfNotBefore(ex, "Exception ocurred in {MethodName}", nameof(GetRpmAsync)))
@@ -281,7 +281,7 @@ namespace SmartCacheManager
             {
                 var cacheSetting = await CacheSettingService.GetFromCacheBySupplierTypeAsync(supplierType, cancellationToken).ConfigureAwait(false);
 
-                var currentRPM = await GetRpmAsync(incomingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
+                var currentRPM = await GetRpmAsync(incomingPattern, supplierType, cancellationToken).ConfigureAwait(false);
 
                 var searchDate = GetSearchDate(searchModel);
                 Logger.SetProperty(LogConstants.SearchDate, searchDate);
@@ -302,15 +302,14 @@ namespace SmartCacheManager
         /// </summary>
         /// <typeparam name="TSupplierType">Type of SupplierType</typeparam>
         /// <param name="incomingPattern">Icoming pattern pattern</param>
-        /// <param name="searchModel">Search model</param>
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Current Rpm</returns>
-        protected virtual Task<decimal> GetRpmAsync<TSupplierType>(string incomingPattern, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        protected virtual Task<decimal> GetRpmAsync<TSupplierType>(string incomingPattern, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {
-                return SearchHistoryService.GetRpmAsync(incomingPattern, searchModel, supplierType, cancellationToken);
+                return SearchHistoryService.GetRpmAsync(incomingPattern, supplierType, cancellationToken);
             }
             catch (Exception ex)
             when (Logger.LogErrorIfNotBefore(ex, "Exception ocurred in {MethodName}", nameof(GetRpmAsync)))

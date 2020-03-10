@@ -36,24 +36,19 @@ namespace SmartCacheManager.Services
         /// Add an incoming search request
         /// </summary>
         /// <typeparam name="TSupplierType">Type of SupplierType</typeparam>
-        /// <typeparam name="TSearchModel">Type of SearchModel</typeparam>
         /// <param name="incomingPrefix">Icoming pattern prefix</param>
-        /// <param name="searchModel">Search model</param>
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Task</returns>
         [Time]
-        public async Task AddIncommingAsync<TSupplierType, TSearchModel>(string incomingPrefix, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        public async Task AddIncommingAsync<TSupplierType>(string incomingPrefix, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {
                 incomingPrefix.NotNullOrWhiteSpace(nameof(incomingPrefix));
                 supplierType.NotNull(nameof(supplierType));
-                searchModel.NotNull(nameof(searchModel));
 
                 var strSupplierType = supplierType.ConvertTo<string>();
-
-                Logger.SetProperty(LogConstants.SearchModel, searchModel, true);
                 Logger.SetProperty(LogConstants.SupplierType, strSupplierType);
 
                 var cacheSetting = await CacheSettingService.GetFromCacheBySupplierTypeAsync(strSupplierType, cancellationToken).ConfigureAwait(false);
@@ -79,24 +74,19 @@ namespace SmartCacheManager.Services
         /// Add an outgoing search request
         /// </summary>
         /// <typeparam name="TSupplierType">Type of SupplierType</typeparam>
-        /// <typeparam name="TSearchModel">Type of SearchModel</typeparam>
         /// <param name="outgoingPrefix">Outgoing pattern prefix</param>
-        /// <param name="searchModel">Search model</param>
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Task</returns>
         [Time]
-        public async Task AddOutgoingAsync<TSupplierType, TSearchModel>(string outgoingPrefix, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        public async Task AddOutgoingAsync<TSupplierType>(string outgoingPrefix, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {
                 outgoingPrefix.NotNullOrWhiteSpace(nameof(outgoingPrefix));
                 supplierType.NotNull(nameof(supplierType));
-                searchModel.NotNull(nameof(searchModel));
 
                 var strSupplierType = supplierType.ConvertTo<string>();
-
-                Logger.SetProperty(LogConstants.SearchModel, searchModel, true);
                 Logger.SetProperty(LogConstants.SupplierType, strSupplierType);
 
                 var limitSettings = await LimitSettingService.GetFromCacheBySupplierTypeAsync(strSupplierType, cancellationToken).ConfigureAwait(false); //Can be null
@@ -120,22 +110,18 @@ namespace SmartCacheManager.Services
         /// </summary>
         /// <typeparam name="TSupplierType">Type of SupplierType</typeparam>
         /// <param name="incomingPrefix">Icoming pattern prefix</param>
-        /// <param name="searchModel">Search model</param>
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Current RPM</returns>
         [Time]
-        public async Task<decimal> GetRpmAsync<TSupplierType, TSearchModel>(string incomingPrefix, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        public async Task<decimal> GetRpmAsync<TSupplierType>(string incomingPrefix, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {
                 incomingPrefix.NotNullOrWhiteSpace(nameof(incomingPrefix));
                 supplierType.NotNull(nameof(supplierType));
-                searchModel.NotNull(nameof(searchModel));
 
                 var strSupplierType = supplierType.ConvertTo<string>();
-
-                Logger.SetProperty(LogConstants.SearchModel, searchModel, true);
                 Logger.SetProperty(LogConstants.SupplierType, strSupplierType);
 
                 var cacheSetting = await CacheSettingService.GetFromCacheBySupplierTypeAsync(strSupplierType, cancellationToken).ConfigureAwait(false);
@@ -158,22 +144,18 @@ namespace SmartCacheManager.Services
         /// </summary>
         /// <typeparam name="TSupplierType">Type of SupplierType</typeparam>
         /// <param name="outgoingPrefix">Outgoing pattern prefix</param>
-        /// <param name="searchModel">Search model</param>
         /// <param name="supplierType">Supplier type</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>Return true if limitation is reached</returns>
         [Time]
-        public async Task<bool> IsLimitationReachedAsync<TSupplierType, TSearchModel>(string outgoingPrefix, TSearchModel searchModel, TSupplierType supplierType, CancellationToken cancellationToken = default)
+        public async Task<bool> IsLimitationReachedAsync<TSupplierType>(string outgoingPrefix, TSupplierType supplierType, CancellationToken cancellationToken = default)
         {
             try
             {
                 outgoingPrefix.NotNullOrWhiteSpace(nameof(outgoingPrefix));
                 supplierType.NotNull(nameof(supplierType));
-                searchModel.NotNull(nameof(searchModel));
 
                 var strSupplierType = supplierType.ConvertTo<string>();
-
-                Logger.SetProperty(LogConstants.SearchModel, searchModel, true);
                 Logger.SetProperty(LogConstants.SupplierType, strSupplierType);
 
                 var limitSettings = await LimitSettingService.GetFromCacheBySupplierTypeAsync(strSupplierType, cancellationToken).ConfigureAwait(false);

@@ -6,7 +6,7 @@ using SmartCacheManager.Utilities;
 using System;
 using System.Linq;
 
-namespace SmartCacheManager.Dashboard
+namespace SmartCacheManager.Demo
 {
     public class FlightSearchModel
     {

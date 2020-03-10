@@ -1,4 +1,4 @@
-namespace SmartCacheManager.Dashboard.Models
+namespace SmartCacheManager.Demo.Models
 {
     public class ErrorViewModel
     {

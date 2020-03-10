@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartCacheManager", "SmartCacheManager\SmartCacheManager.csproj", "{63C5D207-EA57-4D54-9FA9-70D282952465}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartCacheManager.Dashboard", "SmartCacheManager.Dashboard\SmartCacheManager.Dashboard.csproj", "{5857EF7F-68DE-4E40-8562-AFB2F1731ADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartCacheManager.Demo", "SmartCacheManager.Demo\SmartCacheManager.Demo.csproj", "{5857EF7F-68DE-4E40-8562-AFB2F1731ADE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartCacheManager.Tests", "SmartCacheManager.Tests\SmartCacheManager.Tests.csproj", "{994BF574-8D91-4BF9-B48C-710FB8D1594A}"
 EndProject

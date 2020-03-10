@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SmartCacheManager.Caching;
-using SmartCacheManager.Dashboard.Models;
+using SmartCacheManager.Demo.Models;
 
-namespace SmartCacheManager.Dashboard.Controllers
+namespace SmartCacheManager.Demo.Controllers
 {
     public class CacheDetail
     {
