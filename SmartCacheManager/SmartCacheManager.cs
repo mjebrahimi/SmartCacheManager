@@ -103,17 +103,17 @@ namespace SmartCacheManager
                     }
                     else
                     {
-                        dataRetriever = async () =>
+                        async Task<TResult> RetrieverAndLogHistroy()
                         {
                             var data = await dataRetriever().ConfigureAwait(false);
                             await SearchHistoryService.AddOutgoingAsync(outgoingPattern, searchModel, supplierType, cancellationToken).ConfigureAwait(false);
                             return data;
-                        };
+                        }
 
                         if (cacheMinutes == 0)
-                            result = await dataRetriever().ConfigureAwait(false);
+                            result = await RetrieverAndLogHistroy().ConfigureAwait(false);
                         else
-                            result = await CacheManager.GetAsync(cacheKey, dataRetriever, cacheMinutes, cancellationToken).ConfigureAwait(false);
+                            result = await CacheManager.GetAsync(cacheKey, RetrieverAndLogHistroy, cacheMinutes, cancellationToken).ConfigureAwait(false);
                     }
                     return result;
                 }
