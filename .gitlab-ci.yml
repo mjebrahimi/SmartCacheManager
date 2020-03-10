@@ -7,8 +7,3 @@ stage_build:
     stage: build
     script:
         - "dotnet build"
-
-stage_test:
-    stage: test
-    script: 
-        - "dotnet test"
