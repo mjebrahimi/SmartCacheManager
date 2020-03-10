@@ -124,4 +124,4 @@ If you find this repository useful, please give it a star. Thanks!
 
 ## License/Copyright 
 
-SmartCacheManager is Copyright © 2020 [Mohammd Javad Ebrahimi](https://github.com/mjebrahimi) under the [GNU GPLv3 License](/LICENSE)
+SmartCacheManager is Copyright © 2020 [Mohammd Javad Ebrahimi](https://github.com/mjebrahimi) under the [GNU GPLv3 License](/LICENSE).
