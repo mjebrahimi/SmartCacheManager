@@ -31,7 +31,6 @@ namespace SmartCacheManager.Logging.Serilog
                 Log.CloseAndFlush();
             };
 
-            //TODO: services.Configure()
             var options = new SerilogOptions();
             configure?.Invoke(options);
 
@@ -40,8 +39,9 @@ namespace SmartCacheManager.Logging.Serilog
             var serilogLogger = new SerilogLogger(logger, diagnosticContext);
             var serilogLoggerFactory = new SerilogLoggerFactory(logger, diagnosticContext);
 
-            LoggerExtensions.LoggingEnabled = options.LoggingEnabled;
-            MethodTimeLogger.Enabled = options.LoggingEnabled && options.TimingLogEnabled;
+            LogConstants.LogErrorEnabled = options.LoggingEnabled;
+            LogConstants.LogCacheEnabled = options.LoggingEnabled && options.LogCacheEnabled;
+            LogConstants.LogTimingEnabled = options.LoggingEnabled && options.LogTimingEnabled;
             MethodTimeLogger.Logger = serilogLogger;
 
             services.TryAddSingleton<ILogger>(serilogLogger);
@@ -107,10 +107,10 @@ namespace SmartCacheManager.Logging.Serilog
 
                     config.LogErrorToSqlServer(options.SqlConnectionString, LogEventLevel.Error);
 
-                    if (options.TimingLogEnabled)
+                    if (options.LogTimingEnabled)
                         config.LogTimingToSqlServer(options.SqlConnectionString, LogEventLevel.Information);
 
-                    if (options.CacheLogEnabled)
+                    if (options.LogCacheEnabled)
                         config.LogCacheToSqlServer(options.SqlConnectionString, LogEventLevel.Information);
                 }
                 #endregion
@@ -208,7 +208,7 @@ namespace SmartCacheManager.Logging.Serilog
         public static void LogErrorToSqlServer(this LoggerConfiguration configuration, string connectionString, LogEventLevel minimumLevel)
         {
             var columnOptions = new ColumnOptions();
-            columnOptions.Store.Remove(StandardColumn.Level);
+            columnOptions.Store.Remove(StandardColumn.MessageTemplate);
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Add(StandardColumn.LogEvent);
 
@@ -239,8 +239,6 @@ namespace SmartCacheManager.Logging.Serilog
         public static void LogTimingToSqlServer(this LoggerConfiguration configuration, string connectionString, LogEventLevel minimumLevel)
         {
             var columnOptions = new ColumnOptions();
-            columnOptions.Store.Remove(StandardColumn.Level);
-            columnOptions.Store.Remove(StandardColumn.Message);
             columnOptions.Store.Remove(StandardColumn.MessageTemplate);
             columnOptions.Store.Remove(StandardColumn.Exception);
             columnOptions.Store.Remove(StandardColumn.Properties);
@@ -273,6 +271,7 @@ namespace SmartCacheManager.Logging.Serilog
         public static void LogCacheToSqlServer(this LoggerConfiguration configuration, string connectionString, LogEventLevel minimumLevel)
         {
             var columnOptions = new ColumnOptions();
+            columnOptions.Store.Remove(StandardColumn.MessageTemplate);
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Remove(StandardColumn.Level);
             columnOptions.Store.Remove(StandardColumn.Exception);
@@ -285,6 +284,7 @@ namespace SmartCacheManager.Logging.Serilog
             columnOptions.AdditionalColumns = new Collection<SqlColumn>
             {
                 new SqlColumn {ColumnName = "Exception", DataType = SqlDbType.NVarChar, DataLength = -1},
+                new SqlColumn {ColumnName = "Level", DataType = SqlDbType.VarChar, DataLength = 11},
                 new SqlColumn {ColumnName = "SupplierType", DataType = SqlDbType.NVarChar, DataLength = 50, NonClusteredIndex = true},
                 new SqlColumn {ColumnName = "CurrentRPM", DataType = SqlDbType.Decimal, NonClusteredIndex = true},
                 new SqlColumn {ColumnName = "CacheMinutesBySearchDate", DataType = SqlDbType.Int, NonClusteredIndex = true},
@@ -296,7 +296,7 @@ namespace SmartCacheManager.Logging.Serilog
                 new SqlColumn {ColumnName = "IsLimitationReached", DataType = SqlDbType.Bit, NonClusteredIndex = true},
                 new SqlColumn {ColumnName = "IncomingRequestHashCode", DataType = SqlDbType.BigInt, NonClusteredIndex = true},
                 new SqlColumn {ColumnName = "OutgoingRequestHashCode", DataType = SqlDbType.BigInt, NonClusteredIndex = true},
-                new SqlColumn {ColumnName = "CorrelationId", DataType = SqlDbType.VarChar, DataLength = 36, NonClusteredIndex = true},
+                new SqlColumn {ColumnName = "CorrelationId", DataType = SqlDbType.Char, DataLength = 36, NonClusteredIndex = true},
                 new SqlColumn {ColumnName = "MemoryUsage", DataType = SqlDbType.BigInt, NonClusteredIndex = true},
             };
 

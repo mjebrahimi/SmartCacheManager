@@ -317,7 +317,6 @@ namespace SmartCacheManager.Logging
             logger.SetProperty(new LogProperty(propertyName, propertyValue, destructureObjects));
         }
 
-        public static bool LoggingEnabled { get; set; } = true;
         /// <summary>
         /// Log error if was not logged before
         /// </summary>
@@ -332,9 +331,10 @@ namespace SmartCacheManager.Logging
             exception.NotNull(nameof(exception));
             messageTemplate.NotNull(nameof(messageTemplate));
 
-            if (LoggingEnabled && !exception.IsLoggedBefore())
+            if (LogConstants.LogErrorEnabled && !exception.IsLoggedBefore())
             {
                 logger.SetProperty(LogConstants.Exception, exception);
+                logger.SetProperty(LogConstants.Level, LogLevel.Error);
                 logger.Log(LogLevel.Error, exception, messageTemplate, propertyValues, new[] { new LogProperty(LogConstants.LogError, null) });
                 exception.MarkAsLogged();
             }

@@ -12,12 +12,12 @@ namespace SmartCacheManager.Logging.Serilog
         /// <summary>
         /// Gets or sets a value indicating whether enable timing logging. Default is true
         /// </summary>
-        public bool TimingLogEnabled { get; set; } = true;
+        public bool LogTimingEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether enable cache logging. Default is true
         /// </summary>
-        public bool CacheLogEnabled { get; set; } = true;
+        public bool LogCacheEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether enable logging. Default is true

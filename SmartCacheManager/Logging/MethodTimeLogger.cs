@@ -4,13 +4,12 @@ namespace SmartCacheManager.Logging
 {
     public static class MethodTimeLogger
     {
-        public static bool Enabled { get; set; } = true;
         public static ILogger Logger { get; set; }
 
         public static void Log(MethodBase methodBase, long milliseconds, string message)
         {
 #if RELEASE
-            if (!Enabled) return;
+            if (!LogConstants.LogTimingEnabled) return;
 
             var typeName = methodBase.DeclaringType.Name;
             var methodName = $"{typeName.Remove(typeName.IndexOf('`'))}.{methodBase.Name}";
@@ -24,7 +23,7 @@ namespace SmartCacheManager.Logging
                 new LogProperty(LogConstants.MethodHashCode, methodHashCode),
             };
 
-            Logger.Log(LogLevel.Information, null, "", null, logProperties);
+            Logger.Log(LogLevel.Information, null, $"The \"{methodName}\" method elapsed in {milliseconds} MS.", null, logProperties);
 #endif
         }
     }

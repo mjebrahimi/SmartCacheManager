@@ -23,7 +23,7 @@ namespace SmartCacheManager.Demo
             //services.AddSmartCacheManager(opt => opt.UseSqlServer("Data Source=.;Initial Catalog=CacheManageDb;Integrated Security=true"),
             //    loggerConfigure: opt => { opt.SqlConnectionString = "Data Source=.;Initial Catalog=CacheManageDb;Integrated Security=true"; });
 
-            services.AddSmartCacheManager(opt => opt.UseSqlServer("Data Source=.;Initial Catalog=CacheManageDb2;Integrated Security=true"),
+            services.AddSmartCacheManager(opt => opt.UseSqlServer("Data Source=.;Initial Catalog=CacheDbManager;Integrated Security=true"),
                 enableThreadSafety: true, useDatabaseSearchHistory: true);
             services.AddScoped<FlightCacheManager>();
 

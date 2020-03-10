@@ -2,11 +2,16 @@
 {
     public static class LogConstants
     {
+        public static bool LogCacheEnabled { get; set; } = true;
+        public static bool LogTimingEnabled { get; set; } = true;
+        public static bool LogErrorEnabled { get; set; } = true;
+
         public const string LogError = "LogError";
         public const string LogTiming = "LogTiming";
         public const string LogCache = "LogCache";
 
         public const string Exception = "Exception";
+        public const string Level = "Level";
         public const string IsLimitationReached = "IsLimitationReached";
         public const string OutgoingRequestCount = "OutgoingRequestCount";
         public const string LimitSetting = "LimitSetting";
@@ -29,5 +34,6 @@
         public const string MethodName = "MethodName";
         public const string ElapsedMilliSeconds = "ElapsedMilliSeconds";
         public const string MethodHashCode = "MethodHashCode";
+        public const string DataRetrieved = "DataRetrieved";
     }
 }

@@ -72,14 +72,13 @@ namespace SmartCacheManager
         {
             try
             {
-                using (Logger.BeginLogScopeInformation("A search process was performed"))
+                using (BeginLogCacheProcess())
                 {
-                    Logger.SetProperty(LogConstants.LogCache, null);
-
                     searchModel.NotNull(nameof(searchModel));
                     supplierType.NotNull(nameof(supplierType));
                     dataRetriever.NotNull(nameof(dataRetriever));
 
+                    Logger.SetProperty(LogConstants.Level, LogLevel.Information);
                     Logger.SetProperty(LogConstants.SearchModel, searchModel, true);
                     Logger.SetProperty(LogConstants.SupplierType, supplierType.ConvertTo<string>());
 
@@ -106,14 +105,19 @@ namespace SmartCacheManager
                         async Task<TResult> RetrieverAndLogHistroy()
                         {
                             var data = await dataRetriever().ConfigureAwait(false);
+                            Logger.SetProperty(LogConstants.DataRetrieved, true);
                             await SearchHistoryService.AddOutgoingAsync(outgoingPattern, supplierType, cancellationToken).ConfigureAwait(false);
                             return data;
                         }
 
                         if (cacheMinutes == 0)
+                        {
                             result = await RetrieverAndLogHistroy().ConfigureAwait(false);
+                        }
                         else
+                        {
                             result = await CacheManager.GetAsync(cacheKey, RetrieverAndLogHistroy, cacheMinutes, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     return result;
                 }
@@ -469,6 +473,13 @@ namespace SmartCacheManager
             {
                 throw;
             }
+        }
+
+        private IDisposable BeginLogCacheProcess()
+        {
+            var disposable = LogConstants.LogCacheEnabled ? Logger.BeginLogScopeInformation("A search process was performed") : new NullDisposable();
+            Logger.SetProperty(LogConstants.LogCache, null);
+            return disposable;
         }
 
         /// <summary>
