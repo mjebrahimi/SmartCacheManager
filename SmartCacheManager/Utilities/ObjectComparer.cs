@@ -57,22 +57,22 @@ namespace SmartCacheManager.Utilities
                 //Comparison if the property is an IEnumerable
                 if (propertyInfo.PropertyType.IsEnumerable())
                 {
-                    var result = false;
                     foreach (var currentsItem in (IEnumerable)currentsValue)
                     {
+                        var oneMatchFound = false;
                         foreach (var othersItem in (IEnumerable)othersValue)
                         {
                             //Recursively call the Equal method
                             var areEqual = DeepEquals(currentsItem, othersItem);
                             if (areEqual)
                             {
-                                result = true;
+                                oneMatchFound = true;
                                 break;
                             }
                         }
+                        if (!oneMatchFound)
+                            return false;
                     }
-                    if (!result)
-                        return false;
                 }
                 else
                 {

@@ -25,7 +25,7 @@ namespace SmartCacheManager.Utilities
 
     /// <summary>
     /// A lock with async/await support
-    /// Source from EF Core Repository:
+    /// Source from EF Core Repository: 
     /// https://github.com/dotnet/efcore/blob/0d76bbf45a42148924b413ef8f37bf49c1ce10d3/src/EFCore/Internal/AsyncLock.cs
     /// Alternatives :
     /// https://github.com/bmbsqd/AsyncLock
