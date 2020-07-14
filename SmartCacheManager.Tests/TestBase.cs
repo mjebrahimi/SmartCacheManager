@@ -37,7 +37,7 @@ namespace SmartCacheManager.Tests
         public async Task TearDown()
         {
             var cacheManager = ServiceProvider.GetRequiredService<ICacheManager>();
-            await cacheManager.RemoveByPrefixAsync("WebServiceCache");
+            await cacheManager.RemoveByPrefixAsync("SmartCacheManager");
             ((IDisposable)ServiceProvider).Dispose();
         }
     }

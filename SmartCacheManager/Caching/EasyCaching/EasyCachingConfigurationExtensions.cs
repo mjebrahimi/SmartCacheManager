@@ -3,9 +3,7 @@ using EasyCaching.Core;
 using EasyCaching.Core.Configurations;
 using EasyCaching.InMemory;
 using EasyCaching.Redis;
-using EasyCaching.Serialization.Json;
 using EasyCaching.Serialization.MessagePack;
-using EasyCaching.Serialization.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -42,8 +40,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         {
             services.NotNull(nameof(services));
 
-            var inMemory = "DefaultInMemory";
-            var redis = "DefaultRedis";
 
             if (configure == null)
                 configure = _ => { };
@@ -58,88 +54,61 @@ namespace SmartCacheManager.Caching.EasyCaching
 
             services.AddEasyCaching(easyCachingOptions =>
             {
-                if (options.ProviderType == CachingProviderType.InMemory || options.ProviderType == CachingProviderType.Hybrid)
+                switch (options.ProviderType)
                 {
-                    //use memory cache that named inMemory
-                    easyCachingOptions.UseInMemory(config =>
-                    {
-                        // whether enable logging, default is false
-                        config.EnableLogging = options.EnableLogging;
-                        //config.DBConfig = new InMemoryCachingOptions
-                        //{
-                        //    // scan time, default value is 60s
-                        //    ExpirationScanFrequency = 60,
-                        //    // total count of cache items, default value is 10000
-                        //    SizeLimit = 100
-                        //};
-                        //// the max random second will be added to cache's expiration, default value is 120
-                        //config.MaxRdSecond = 120;
-                        //// mutex key's alive time(ms), default is 5000
-                        //config.LockMs = 5000;
-                        //// when mutex key alive, it will sleep some time, default is 300
-                        //config.SleepMs = 300;
-                    }, inMemory);
-                }
+                    case CachingProviderType.InMemory:
+                        var inMemory = "DefaultInMemory";
 
-                if (options.ProviderType == CachingProviderType.Redis || options.ProviderType == CachingProviderType.Hybrid)
-                {
-                    var serializerName = options.BinarySerializerType.ToString();
-
-                    //use redis cache that named redis
-                    var redisCache = easyCachingOptions.UseRedis(config =>
-                    {
-                        // whether enable logging, default is false
-                        config.EnableLogging = options.EnableLogging;
-                        //redis database endpoint (host:port)
-                        config.DBConfig.Endpoints.Add(new ServerEndPoint(options.RedisHost, options.RedisPort));
-                        config.SerializerName = serializerName;
-                        //Access for redis FLUSHDB command
-                        config.DBConfig.AllowAdmin = options.RedisAllowAdmin;
-                    }, redis);
-
-                    //set binary serializer (MessagePack or Protobuf or Json)
-                    switch (options.BinarySerializerType)
-                    {
-                        case BinarySerializerType.MessagePack:
-                            //https://easycaching.readthedocs.io/en/latest/MessagePack/
-                            //CompositeResolver.RegisterAndSetAsDefault(
-                            //    // This can solve DateTime time zone problem
-                            //    NativeDateTimeResolver.Instance,
-                            //    ContractlessStandardResolver.Instance
-                            //);
-                            //redisCache.WithMessagePack(opt =>
+                        easyCachingOptions.UseInMemory(config =>
+                        {
+                            // whether enable logging, default is false
+                            config.EnableLogging = options.EnableLogging;
+                            //config.DBConfig = new InMemoryCachingOptions
                             //{
-                            //    opt.EnableCustomResolver = true;
-                            //}, msgPack);
-                            redisCache.WithMessagePack(serializerName);
-                            break;
-                        case BinarySerializerType.Protobuf:
-                            redisCache.WithProtobuf(serializerName);
-                            break;
-                        case BinarySerializerType.Json:
-                            redisCache.WithJson(serializerName);
-                            break;
-                    }
-                }
+                            //    // scan time, default value is 60s
+                            //    ExpirationScanFrequency = 60,
+                            //    // total count of cache items, default value is 10000
+                            //    SizeLimit = 100
+                            //};
+                            //// the max random second will be added to cache's expiration, default value is 120
+                            //config.MaxRdSecond = 120;
+                            //// mutex key's alive time(ms), default is 5000
+                            //config.LockMs = 5000;
+                            //// when mutex key alive, it will sleep some time, default is 300
+                            //config.SleepMs = 300;
+                        }, inMemory);
+                        break;
+                    case CachingProviderType.Redis:
+                        var redis = "DefaultRedis";
+                        var serializerName = "MessagePack";
 
-                if (options.ProviderType == CachingProviderType.Hybrid)
-                {
-                    //Required API in CacheManager dose not support in EasyCaching Hybrid mode
-                    throw new NotSupportedException();
+                        var redisCache = easyCachingOptions.UseRedis(config =>
+                        {
+                            // whether enable logging, default is false
+                            config.EnableLogging = options.EnableLogging;
+                            //redis database endpoint (host:port)
+                            config.DBConfig.Endpoints.Add(new ServerEndPoint(options.RedisHost, options.RedisPort));
+                            config.SerializerName = serializerName;
+                            //Access for redis FLUSHDB command
+                            config.DBConfig.AllowAdmin = options.RedisAllowAdmin;
+                        }, redis);
 
-                    //https://easycaching.readthedocs.io/en/latest/Hybrid
-                    //easyCachingOptions.UseHybrid(config =>
-                    //{
-                    //    config.EnableLogging = cacheSettings.EnableLogging;
-                    //    config.TopicName = topicName;
-                    //    config.LocalCacheProviderName = inMemory;
-                    //    config.DistributedCacheProviderName = redis;
-                    //}, hybrid)
-                    ////Bus.Redis or Bus.RabbitMQ
-                    //.WithRedisBus(busConf =>
-                    //{
-                    //    busConf.Endpoints.Add(new ServerEndPoint("127.0.0.1", 6380));
-                    //});
+                        //set binary serializer (MessagePack or Protobuf or Json)
+                        //https://easycaching.readthedocs.io/en/latest/MessagePack/
+                        //CompositeResolver.RegisterAndSetAsDefault(
+                        //    // This can solve DateTime time zone problem
+                        //    NativeDateTimeResolver.Instance,
+                        //    ContractlessStandardResolver.Instance
+                        //);
+                        //redisCache.WithMessagePack(opt =>
+                        //{
+                        //    opt.EnableCustomResolver = true;
+                        //}, msgPack);
+                        redisCache.WithMessagePack(serializerName);
+                        break;
+                    case CachingProviderType.Disabled:
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(options.ProviderType), "CachingProviderType is not valid.");
                 }
             });
 

@@ -7,7 +7,6 @@
     {
         InMemory,
         Redis,
-        Hybrid,
         Disabled
     }
 }

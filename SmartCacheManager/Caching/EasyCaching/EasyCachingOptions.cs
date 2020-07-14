@@ -26,11 +26,6 @@
         public bool RedisAllowAdmin { get; set; } = true;
 
         /// <summary>
-        /// Get or set binary serializer type. Default is BinarySerializerType.MessagePack
-        /// </summary>
-        public BinarySerializerType BinarySerializerType { get; set; } = BinarySerializerType.MessagePack;
-
-        /// <summary>
         /// Get or set default cache expiration time in minutes. Default is 15
         /// </summary>
         public int DefaultCacheMinutes { get; set; } = 15;

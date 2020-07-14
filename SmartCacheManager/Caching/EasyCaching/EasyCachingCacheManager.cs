@@ -21,7 +21,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         private readonly EasyCachingOptions _options;
         private readonly IEasyCachingProvider _easyCachingProvider;
         private readonly IRedisCachingProvider _redisCachingProvider;
-        private readonly IHybridCachingProvider _hybridCachingProvider;
 
         public EasyCachingCacheManager(IOptionsSnapshot<EasyCachingOptions> options, IServiceProvider serviceProvider)
         {
@@ -38,9 +37,6 @@ namespace SmartCacheManager.Caching.EasyCaching
                     _easyCachingProvider = serviceProvider.GetRequiredService<IEasyCachingProvider>();
                     _redisCachingProvider = serviceProvider.GetRequiredService<IRedisCachingProvider>();
                     break;
-                case CachingProviderType.Hybrid:
-                    _hybridCachingProvider = serviceProvider.GetRequiredService<IHybridCachingProvider>();
-                    break;
                 case CachingProviderType.Disabled:
                 default:
                     throw new InvalidOperationException("Caching is disabled.");
@@ -54,8 +50,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>The exists.</returns>
         public bool Exists(string cacheKey)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.Exists(cacheKey);
             return _easyCachingProvider.Exists(cacheKey);
         }
 
@@ -67,8 +61,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>The exists.</returns>
         public Task<bool> ExistsAsync(string cacheKey, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.ExistsAsync(cacheKey);
             return _easyCachingProvider.ExistsAsync(cacheKey);
         }
 
@@ -80,8 +72,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Cached value</returns>
         public T Get<T>(string cacheKey)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.Get<T>(cacheKey).Value;
             return _easyCachingProvider.Get<T>(cacheKey).Value;
         }
 
@@ -96,8 +86,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public T Get<T>(string cacheKey, Func<T> dataRetriever, int? expirationMinutes = null)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.Get(cacheKey, dataRetriever, timespan).Value;
             return _easyCachingProvider.Get(cacheKey, dataRetriever, timespan).Value;
         }
 
@@ -110,8 +98,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Cached value</returns>
         public async Task<T> GetAsync<T>(string cacheKey, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return (await _hybridCachingProvider.GetAsync<T>(cacheKey).ConfigureAwait(false)).Value;
             return (await _easyCachingProvider.GetAsync<T>(cacheKey).ConfigureAwait(false)).Value;
         }
 
@@ -127,8 +113,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public async Task<T> GetAsync<T>(string cacheKey, Func<Task<T>> dataRetriever, int? expirationMinutes = null, CancellationToken cancellationToken = default)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return (await _hybridCachingProvider.GetAsync(cacheKey, dataRetriever, timespan).ConfigureAwait(false)).Value;
             return (await _easyCachingProvider.GetAsync(cacheKey, dataRetriever, timespan).ConfigureAwait(false)).Value;
         }
 
@@ -140,8 +124,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Dictionary of key/value cache items</returns>
         public Dictionary<string, T> GetByPrefix<T>(string prefix)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(GetByPrefix)} method");
             var items = _easyCachingProvider.GetByPrefix<T>(prefix);
             return items.ToDictionary(p => p.Key, p => p.Value.Value);
         }
@@ -155,8 +137,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Dictionary of key/value cache items</returns>
         public async Task<Dictionary<string, T>> GetByPrefixAsync<T>(string prefix, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(GetByPrefixAsync)} method");
             var items = await _easyCachingProvider.GetByPrefixAsync<T>(prefix).ConfigureAwait(false);
             return items.ToDictionary(p => p.Key, p => p.Value.Value);
         }
@@ -211,8 +191,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Expiration in TimeSpan</returns>
         public TimeSpan GetExpiration(string cacheKey)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(GetExpiration)} method");
             return _easyCachingProvider.GetExpiration(cacheKey);
         }
 
@@ -224,8 +202,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Expiration in TimeSpan</returns>
         public Task<TimeSpan> GetExpirationAsync(string cacheKey, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(GetExpirationAsync)} method");
             return _easyCachingProvider.GetExpirationAsync(cacheKey);
         }
 
@@ -281,8 +257,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <param name="cacheKey">Cache key.</param>
         public void Remove(string cacheKey)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                _hybridCachingProvider.Remove(cacheKey);
             _easyCachingProvider.Remove(cacheKey);
         }
 
@@ -292,8 +266,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <param name="cacheKeys">Cache keys.</param>
         public void RemoveAll(IEnumerable<string> cacheKeys)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                _hybridCachingProvider.RemoveAll(cacheKeys);
             _easyCachingProvider.RemoveAll(cacheKeys);
         }
 
@@ -305,8 +277,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Task</returns>
         public Task RemoveAllAsync(IEnumerable<string> cacheKeys, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.RemoveAllAsync(cacheKeys);
             return _easyCachingProvider.RemoveAllAsync(cacheKeys);
         }
 
@@ -318,8 +288,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Task</returns>
         public Task RemoveAsync(string cacheKey, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.RemoveAsync(cacheKey);
             return _easyCachingProvider.RemoveAsync(cacheKey);
         }
 
@@ -329,8 +297,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <param name="prefix">Prefix of CacheKey.</param>
         public void RemoveByPrefix(string prefix)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                _hybridCachingProvider.RemoveByPrefix(prefix);
             _easyCachingProvider.RemoveByPrefix(prefix);
         }
 
@@ -342,8 +308,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Task</returns>
         public Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.RemoveByPrefixAsync(prefix);
             return _easyCachingProvider.RemoveByPrefixAsync(prefix);
         }
 
@@ -357,8 +321,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public void Set<T>(string cacheKey, T cacheValue, int? expirationMinutes = null)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                _hybridCachingProvider.Set(cacheKey, cacheValue, timespan);
             _easyCachingProvider.Set(cacheKey, cacheValue, timespan);
         }
 
@@ -371,8 +333,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public void SetAll<T>(IDictionary<string, T> value, int? expirationMinutes = null)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                _hybridCachingProvider.SetAll(value, timespan);
             _easyCachingProvider.SetAll(value, timespan);
         }
 
@@ -387,8 +347,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public Task SetAllAsync<T>(IDictionary<string, T> value, int? expirationMinutes = null, CancellationToken cancellationToken = default)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.SetAllAsync(value, timespan);
             return _easyCachingProvider.SetAllAsync(value, timespan);
         }
 
@@ -404,8 +362,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public Task SetAsync<T>(string cacheKey, T cacheValue, int? expirationMinutes = null, CancellationToken cancellationToken = default)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.SetAsync(cacheKey, cacheValue, timespan);
             return _easyCachingProvider.SetAsync(cacheKey, cacheValue, timespan);
         }
 
@@ -420,8 +376,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public bool TrySet<T>(string cacheKey, T cacheValue, int? expirationMinutes = null)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.TrySet(cacheKey, cacheValue, timespan);
             return _easyCachingProvider.TrySet(cacheKey, cacheValue, timespan);
         }
 
@@ -437,8 +391,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         public Task<bool> TrySetAsync<T>(string cacheKey, T cacheValue, int? expirationMinutes = null, CancellationToken cancellationToken = default)
         {
             var timespan = TimeSpan.FromMinutes(expirationMinutes ?? _options.DefaultCacheMinutes);
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                return _hybridCachingProvider.TrySetAsync(cacheKey, cacheValue, timespan);
             return _easyCachingProvider.TrySetAsync(cacheKey, cacheValue, timespan);
         }
 
@@ -493,8 +445,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// </summary>
         public void Flush()
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(Flush)} method");
             _easyCachingProvider.Flush();
         }
 
@@ -505,8 +455,6 @@ namespace SmartCacheManager.Caching.EasyCaching
         /// <returns>Task</returns>
         public Task FlushAsync(CancellationToken cancellationToken = default)
         {
-            if (_options.ProviderType == CachingProviderType.Hybrid)
-                throw new NotSupportedException($"{nameof(IHybridCachingProvider)} dose not support {nameof(FlushAsync)} method");
             return _easyCachingProvider.FlushAsync();
         }
 
