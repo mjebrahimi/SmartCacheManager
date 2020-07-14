@@ -15,7 +15,7 @@
     <Copyright>Copyright © Mohammad Javad Ebrahimi 2020</Copyright>
     <Description>SmartCacheManager is a smart caching module to cache objects with resilient and variable expiration timing that is useful for caching result of web services.</Description>
     <PackageTags>Cache Caching Flight IATA Train</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/mjebrahimi/SmartCacheManager</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
