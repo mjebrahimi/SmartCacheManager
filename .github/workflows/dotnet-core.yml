@@ -14,12 +14,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack (Release)
+        run: dotnet pack SmartCacheManager --configuration Release
+
+      - name: Publish
+        if: github.event_name == 'push'
+        run: |      
+            if ( "${{github.ref}}" -match "^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$" ) {
+                dotnet nuget push SmartCacheManager\bin\Release\*.nupkg -s nuget.org -k ${{secrets.NUGET_TOKEN}} --no-symbols true
+            } else {
+                echo "publish is only enabled by tagging with a release tag"
+            }
