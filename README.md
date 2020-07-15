@@ -1,3 +1,7 @@
+[![NuGet](https://img.shields.io/nuget/v/SmartCacheManager.svg)](https://www.nuget.org/packages/SmartCacheManager)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/mjebrahimi/SmartCacheManager/workflows/.NET%20Core/badge.svg)](https://github.com/mjebrahimi/SmartCacheManager)
+
 # SmartCacheManager
 **SmartCacheManager** is a smart caching module to cache objects with resilient and variable expiration timing that is useful for caching result of web services.
 
@@ -28,6 +32,7 @@
 
 ### 1. Install Package
 
+> For .NetCore 2.2 use [v1.0.0](https://www.nuget.org/packages/SmartCacheManager/1.0.0) and for .NETCore 3.1 use [v2.0.0](https://www.nuget.org/packages/SmartCacheManager/2.0.0) of SmartCacheManager.
 ```
 PM> Install-Package SmartCacheManager
 ```
