@@ -1,15 +1,10 @@
 ﻿using SmartCacheManager.Utilities;
-using EasyCaching.Core;
 using EasyCaching.Core.Configurations;
-using EasyCaching.InMemory;
-using EasyCaching.Redis;
-using EasyCaching.Serialization.MessagePack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 using MessagePack.Resolvers;
-using EasyCaching.Core.Serialization;
 
 namespace SmartCacheManager.Caching.EasyCaching
 {
@@ -52,6 +47,26 @@ namespace SmartCacheManager.Caching.EasyCaching
             if (options.ProviderType == CachingProviderType.Disabled)
                 return services;
 
+            var compressorName = options.CompressionType.ToString();
+            if (options.ProviderType == CachingProviderType.Redis)
+            {
+                switch (options.CompressionType)
+                {
+                    case CompressionType.Brotli:
+                        services.AddBrotliCompressor(compressorName);
+                        break;
+                    case CompressionType.GZip:
+                        services.AddGZipCompressor(compressorName);
+                        break;
+                    case CompressionType.Deflate:
+                        services.AddDeflateCompressor(compressorName);
+                        break;
+                    case CompressionType.LZ4:
+                        services.AddLZ4Compressor(compressorName);
+                        break;
+                }
+            }
+
             services.AddEasyCaching(easyCachingOptions =>
             {
                 switch (options.ProviderType)
@@ -59,7 +74,7 @@ namespace SmartCacheManager.Caching.EasyCaching
                     case CachingProviderType.InMemory:
                         var inMemory = "DefaultInMemory";
 
-                        easyCachingOptions.UseInMemory(config =>
+                        var memoryCache = easyCachingOptions.UseInMemory(config =>
                         {
                             // whether enable logging, default is false
                             config.EnableLogging = options.EnableLogging;
@@ -77,10 +92,11 @@ namespace SmartCacheManager.Caching.EasyCaching
                             //// when mutex key alive, it will sleep some time, default is 300
                             //config.SleepMs = 300;
                         }, inMemory);
+
                         break;
                     case CachingProviderType.Redis:
                         var redis = "DefaultRedis";
-                        var serializerName = "MessagePack";
+                        var msgpack = "MessagePack";
 
                         var redisCache = easyCachingOptions.UseRedis(config =>
                         {
@@ -88,23 +104,25 @@ namespace SmartCacheManager.Caching.EasyCaching
                             config.EnableLogging = options.EnableLogging;
                             //redis database endpoint (host:port)
                             config.DBConfig.Endpoints.Add(new ServerEndPoint(options.RedisHost, options.RedisPort));
-                            config.SerializerName = serializerName;
+                            config.SerializerName = msgpack;
                             //Access for redis FLUSHDB command
                             config.DBConfig.AllowAdmin = options.RedisAllowAdmin;
                         }, redis);
 
-                        //set binary serializer (MessagePack or Protobuf or Json)
+                        //set binary serializer
                         //https://easycaching.readthedocs.io/en/latest/MessagePack/
-                        //CompositeResolver.RegisterAndSetAsDefault(
-                        //    // This can solve DateTime time zone problem
-                        //    NativeDateTimeResolver.Instance,
-                        //    ContractlessStandardResolver.Instance
-                        //);
-                        //redisCache.WithMessagePack(opt =>
-                        //{
-                        //    opt.EnableCustomResolver = true;
-                        //}, msgPack);
-                        redisCache.WithMessagePack(serializerName);
+                        redisCache.WithMessagePack(opt =>
+                        {
+                            opt.EnableCustomResolver = true;
+                            opt.CustomResolvers = CompositeResolver.Create(
+                                // This can solve DateTime time zone problem
+                                NativeDateTimeResolver.Instance,
+                                ContractlessStandardResolver.Instance
+                            );
+                        }, msgpack);
+
+                        if (options.CompressionType != CompressionType.Disabled)
+                            redisCache.WithCompressor(msgpack, compressorName);
                         break;
                     case CachingProviderType.Disabled:
                     default:
@@ -126,32 +144,6 @@ namespace SmartCacheManager.Caching.EasyCaching
 
             services.TryAddScoped<ICacheManager, EasyCachingCacheManager>();
             return services;
-        }
-
-
-        /// <summary>
-        /// WORKAROUND: fixing the time zone lose problem of DateTime in version of <= v0.8.0 of EasyCaching.Serialization.MessagePack
-        /// https://easycaching.readthedocs.io/en/latest/MessagePack/
-        /// </summary>
-        /// <param name="serviceProvider">serviceProvider</param>
-        public static void Fix_EasyCaching_MessagePack_TimeZone_LoseProblem(this IServiceProvider serviceProvider)
-        {
-            serviceProvider.NotNull(nameof(serviceProvider));
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var serializer = scope.ServiceProvider.GetService<IEasyCachingSerializer>();
-                if (serializer is DefaultMessagePackSerializer)
-                {
-                    if (serializer.GetType().Assembly.GetName().Version <= new Version("0.8.0"))
-                    {
-                        CompositeResolver.RegisterAndSetAsDefault(
-                            // This can solve DateTime time zone problem
-                            NativeDateTimeResolver.Instance,
-                            ContractlessStandardResolver.Instance
-                        );
-                    }
-                }
-            }
         }
     }
 }

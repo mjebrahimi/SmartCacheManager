@@ -34,5 +34,10 @@
         /// Gets or sets a value indicating whether enable logging. Default is false
         /// </summary>
         public bool EnableLogging { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets compression type. Default is CompressionType.LZ4
+        /// </summary>
+        public CompressionType CompressionType { get; set; } =  CompressionType.LZ4;
     }
 }

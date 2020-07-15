@@ -121,7 +121,7 @@ namespace SmartCacheManager.Data
         /// <param name="ids">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>The entity found, or null</returns>
-        Task<TEntity> GetByIdAsync(IEnumerable<object> ids, CancellationToken cancellationToken = default);
+        ValueTask<TEntity> GetByIdAsync(IEnumerable<object> ids, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get and entity by Id from cache or fetch from database

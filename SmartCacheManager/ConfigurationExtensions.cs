@@ -100,9 +100,6 @@ namespace SmartCacheManager
         public static void InitializeSmartCacheManager<TDbContext>(this IApplicationBuilder app)
             where TDbContext : DbContext
         {
-            //WORKAROUND: fixing the time zone lose problem of DateTime in version of <= v0.8.0 of EasyCaching.Serialization.MessagePack
-            app.ApplicationServices.Fix_EasyCaching_MessagePack_TimeZone_LoseProblem();
-
             app.ApplicationServices.MigrateAndSeedData<TDbContext>();
         }
     }

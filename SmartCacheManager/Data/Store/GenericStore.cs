@@ -172,7 +172,7 @@ namespace SmartCacheManager.Data
         /// <param name="ids">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>The entity found, or null</returns>
-        public virtual Task<TEntity> GetByIdAsync(IEnumerable<object> ids, CancellationToken cancellationToken = default)
+        public virtual ValueTask<TEntity> GetByIdAsync(IEnumerable<object> ids, CancellationToken cancellationToken = default)
         {
             return DbSet.FindAsync(ids, cancellationToken);
         }
@@ -276,7 +276,7 @@ namespace SmartCacheManager.Data
             var key = string.Format(CacheKeyById, string.Join("-", ids));
             return CacheManager.GetAsync(key, () =>
             {
-                return GetByIdAsync(ids, cancellationToken);
+                return GetByIdAsync(ids, cancellationToken).AsTask();
             }, expirationMinutes);
         }
 
