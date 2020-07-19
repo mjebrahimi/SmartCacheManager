@@ -3,43 +3,42 @@
 [![Build Status](https://github.com/mjebrahimi/SmartCacheManager/workflows/.NET%20Core/badge.svg)](https://github.com/mjebrahimi/SmartCacheManager)
 
 # SmartCacheManager
-**SmartCacheManager** is a smart caching module to cache objects with resilient and variable expiration timing that is useful for caching result of web services.
+**SmartCacheManager** is a response caching module which cache objects with resilient and variable expiration time that is useful for caching the result of web services and other calculations.
 
 ## Features
-- Cache data in **Redis** (by default) using [EasyCaching](https://github.com/dotnetcore/EasyCaching) 
-    - Supports caching providers (Both local caching and distributed caching) such as **In-Memory**, **Redis**, **Memcached**, **Disk**, **Sqlite** and ...
-- Serialize data using extremely fast **MessagePack** serializer (by default)
-    - Supports caching serializers such as **BinaryFormatter**, **MessagePack**, **Json**, **Protobuf** and ...
-- Settings for cache expiration time by **minimum** and **maximum**
-- **Increasing** cache expiration time based on date of search
-- Calculates the **RPM (request per minute)** of a search
-- **Decreasing** cache expiration time based on RPM of search
-- Ability to **limit** searches based on maximum limit count in custom duration
-- Fully **settingable per Supplier Type**
-- Fully **async/await support** with cancellation token
-- **Thread-safe** capability using async/await-friendly lock (via SemaphoreSlim)
-- Logs **Sensitive Data** using [Serilog](https://github.com/serilog/serilog)
-    - Logs any **errors** occures in services
-    - Logs **all steps** of the search and cache process
-    - Logs **incomming requests** to this module
-    - Logs **outgoign request** from this module to web services
-    - Logs **execution time** of service methods using [MethodTimer.Fody](https://github.com/Fody/MethodTimer)
-    - Logs to **SqlServer** (by default) and supports **Console**, **Debug**, **File**, **EventViwer**, **Seq**, **ElasticSearch** and ...
-- Flexible, lightweight and **highly customizable**
+- • Caching objects using [EasyCaching](https://github.com/dotnetcore/EasyCaching) 
+    - Supports various caching providers such as **In-Memory**, **Redis**, **Memcached**, **Disk**, **Sqlite**, ...
+- • Serializing data
+    - Supports various caching serializers such as **BinaryFormatter**, **MessagePack**, **Json**, **Protobuf**, ...
+- • Settings for cache expiration time by specifying the **minimum** and **maximum** duration
+- • Increasing and decreasing cache expiration time automatically based on the date of search and RPM
+- • Calculates the **RPM (request per minute)** of a search
+- • Ability to **limit** searches based on maximum limit count in a specified time range
+- • Ability to configuring cache-key dynamically based on your needs
+- • **Async** support with cancellation tokens
+- • **Thread-safety** support
+- • Flexible, lightweight and **highly customizable**
+- • Logs **Sensitive Data** using [Serilog](https://github.com/serilog/serilog)
+    - Logs all errors occures in services
+    - Logs all steps of the search and caching process
+    - Logs all incomming requests to this module
+    - Logs all outgoing request from this module to external services
+    - Logs the execution time of service methods using [MethodTimer.Fody](https://github.com/Fody/MethodTimer)
+    - Logs to the **Sql-Server** (by default) and supports **Console**, **Debug**, **File**, **EventViwer**, **Seq**, **ElasticSearch** and ...
 
 
-## Get Started
+## Getting Started
 
 ### 1. Install Package
 
-> For .NetCore 2.2 use [v1.0.0](https://www.nuget.org/packages/SmartCacheManager/1.0.0) and for .NETCore 3.1 use [v2.0.0](https://www.nuget.org/packages/SmartCacheManager/2.0.0) of SmartCacheManager.
+> For the .NET Core 2.2 use [v1.0.0](https://www.nuget.org/packages/SmartCacheManager/1.0.0) and for the .NET Core 3.1 use [v2.0.0](https://www.nuget.org/packages/SmartCacheManager/2.0.0) of SmartCacheManager:
 ```
 PM> Install-Package SmartCacheManager
 ```
 
-### 2. Implement your own service
+### 2. Implement your own cache-manager service
 
-For example: simple implementation for FlightCacheManager can be like this.
+For example: A simple implementation of a FlightCacheManager could be like this:
 
 ```csharp
 public class FlightCacheManager : SmartCacheManager<FlightSearchModel>, IFlightCacheManager
@@ -49,19 +48,23 @@ public class FlightCacheManager : SmartCacheManager<FlightSearchModel>, IFlightC
         : base(cacheManager, loggerFactory, systemClock, cacheSettingService, searchHistoryService)
     {
     }
+    
     protected override string GenerateSearchHistoryKey(FlightSearchModel searchModel)
     {
         return GenerateSearchResultKey(searchModel);
     }
+    
     protected override string GenerateSearchResultKey(FlightSearchModel searchModel)
     {
         return $"{searchModel.Origin}-{searchModel.Destination}-{searchModel.SearchDate.ToString("yyyy-MM-dd")}";
     }
+    
     protected override DateTime GetSearchDate(FlightSearchModel searchModel)
     {
         return searchModel.SearchDate;
     }
 }
+
 public class FlightSearchModel
 {
     public string Origin { get; set; }
@@ -70,14 +73,13 @@ public class FlightSearchModel
 }
 ```
 
-### 3. Add Services
+### 3. Register services
 
-Add services and configure it in `ConfigureServices` method of `Startup.cs` using `services.AddSmartCacheManager()` and register your implementation with scoped or transient lifetime.
+Register SmartCacheManager in your DI container by calling `services.AddSmartCacheManager()` and also, register your own cache-manager implementation:
 
 ```csharp
 public static void ConfigureServices(IServiceCollection services)
 {
-    //...
     services.AddSmartCacheManager(opt => opt.UseSqlServer("Data Source=.;Initial Catalog=CacheManageDb;Integrated Security=true");
     services.AddScoped<FlightCacheManager>();
     //...
@@ -86,7 +88,7 @@ public static void ConfigureServices(IServiceCollection services)
 
 ### 4. Initialize it
 
-Initial it in `Configure` method of `Startup.cs` using `app.InitialSmartCacheManager()`.
+Initialize SmartCacheManager using `app.InitialSmartCacheManager()` in the `Configure` method of `Startup.cs`:
 
 ```csharp
 public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -97,16 +99,17 @@ public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 ### 5. Use it
 
-Inject your own implementation  and use it using `SearchFromCacheAsync()` method.
+Inject your own implementation of cache-manager to your services and use it by calling `SearchFromCacheAsync()` method:
 
 ```csharp
-var supplier = FlightSupplierts.Amadeus; //supplier can be any type, string, enum or ...
+var supplier = FlightSupplierts.Amadeus; // Supplier could be any type: string, enum or ...
 var searchModel = new FlightSearchModel
 {
-    Origin = "MUC",
+    Origin = "AMS",
     Destination = "HAM",
     SearchDate = DateTime.Now.AddDays(10)
 };
+
 var result = await _flightCacheManager.SearchFromCacheAsync(searchModel, supplier, () =>
 {
     return _amadeusFlightService.SearchAsync(searchModel);
@@ -115,7 +118,7 @@ var result = await _flightCacheManager.SearchFromCacheAsync(searchModel, supplie
 
 ## Contributing
 
-Create an [issue]() if you find a BUG or have a Suggestion or Question. If you want to develop this project :
+Create an [issue]() if you find a bug or have a suggestion or question. If you want to develop this project:
 
 1. Fork it!
 2. Create your feature branch: `git checkout -b my-new-feature`
