@@ -29,7 +29,7 @@
   <ItemGroup>
     <PackageReference Include="EasyCaching.Core" Version="0.9.0" />
     <PackageReference Include="EasyCaching.Extensions.EasyCompressor" Version="1.2.4" />
-    <PackageReference Include="EasyCaching.InMemory" Version="0.9.0" />
+    <PackageReference Include="EasyCaching.InMemory" Version="1.1.0" />
     <PackageReference Include="EasyCaching.Redis" Version="0.9.0" />
     <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="0.9.0" />
     <PackageReference Include="EasyCompressor" Version="1.3.0" />
